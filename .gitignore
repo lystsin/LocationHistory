@@ -102,3 +102,7 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+*.1
+*.2
+*.3
+data/output/201808/20180808.json
