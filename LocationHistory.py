@@ -8,15 +8,13 @@ Created on Wed Aug  8 13:12:39 2018
 import os
 import json
 import logging
-from datetime import datetime
+import datetime
+
+import const
 
 # loggerの設定
-logging.config.fileConfig('logging.conf')
+logging.config.fileConfig(const.LOGGER_CONF)
 logger = logging.getLogger()
-
-DATA_DIR = 'data'
-READ_FILE_NAME = 'locations.json'
-
 
 def main():
     logger.info('start main')
@@ -30,7 +28,7 @@ def main():
     # 一日ずつ処理
     for k, v in sorted(location_day.items(), key=lambda x: x[0]):
         #月ごとのディレクトリ作成（存在しない場合のみ）
-        dir_path = DATA_DIR + '/' + k[:6]
+        dir_path = const.DATA_DIR + '/' + k[:6]
         os.makedirs(dir_path, exist_ok=True)
         
         #日ごとにJsonファイルに出力
@@ -45,7 +43,7 @@ def main():
 def load_locations():
     logger.info('start load_locations')
     
-    with open(DATA_DIR + '/' + READ_FILE_NAME, 'r') as rf:
+    with open(const.DATA_DIR + '/' + const.READ_FILE_NAME, 'r') as rf:
         dct = json.load(rf)
     return dct['locations']
 
