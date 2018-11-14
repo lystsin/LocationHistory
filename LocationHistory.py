@@ -18,6 +18,16 @@ logger = logging.getLogger()
 
 
 def main():
+    """Summary line.
+
+    GoogleタイムラインJsonを読み込んで、処理しやすい形に整形と軽量化を行い再度ファイル出力を行う。
+
+    1.GoogleタイムラインJson(以降locationsと呼ぶ)読み込み
+    2.locationsのtimestampMsから、日ごとにJsonの形を変更
+    　また、不要パラメータを削ぎ落として軽量化を図る
+    3.月ごとのディレクトリに日ごとのJsonを出力する。
+
+    """
     logger.info('start main')
 
     # locationsファイルの読み込み
@@ -42,6 +52,14 @@ def main():
 
 
 def load_locations():
+    """Summary line.
+
+    locationsを読み込む
+
+    Returns:
+        dct['locations'](dct) : locationsの中身だけ返却
+
+    """
     logger.info('start load_locations')
 
     with open(const.INPUT_DATA_DIR + '/' + const.READ_FILE_NAME, 'r') as rf:
@@ -53,25 +71,47 @@ def load_locations():
 
 
 def make_location_day(locations):
+    """Summary line.
+
+    locationsを日ごとのJsonに整形、不要パラメータを削ぎ落として軽量化を行う。
+
+    Args:
+        locations(dict) : Googleタイムライン情報
+
+    Returns:
+        locations_day : 整形したlocations
+
+    """
     logger.info('start make_location_day')
 
-    location_day = {}
+    locations_day = {}
     for location in locations:
         timestamp = timestampms_to_timestamp(location['timestampMs'])
 
         # 年月日のキーが含まれていなければ、年月日をキーに辞書追加
-        if(timestamp[:8] not in location_day):
-            location_day[timestamp[:8]] = {}
+        if(timestamp[:8] not in locations_day):
+            locations_day[timestamp[:8]] = {}
 
         # 年月日の辞書にタイムスタンプをキーに位置情報をセット
-        location_day[timestamp[:8]][timestamp] = location
+        locations_day[timestamp[:8]][timestamp] = location
 
     logger.info('end make_location_day')
 
-    return location_day
+    return locations_day
 
 
 def timestampms_to_timestamp(timestampMs):
+    """Summary line.
+
+    timestampMsをtimestampに変換する
+
+    Args:
+        timestampMs(str) : timestampMs
+
+    Returns:
+        timestamp : タイムスタンプ(%Y%m%d%H%M%S)
+
+    """
     timestamp = datetime.fromtimestamp(int(timestampMs[:10]))
     return timestamp.strftime('%Y%m%d%H%M%S')
 
