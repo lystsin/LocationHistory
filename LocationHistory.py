@@ -45,8 +45,8 @@ def main():
         # 日ごとにJsonファイルに出力
         write_file_name = dir_path + '/' + k + '.json'
         with open(write_file_name, 'w') as wf:
-            wf.write(json.dumps(v, ensure_ascii=False, indent=4,
-                                sort_keys=False, separators=(',', ': ')))
+            wf.write(json.dumps(v, ensure_ascii=False, sort_keys=False,
+                                separators=(',', ': ')))
 
     logger.info('end main')
 
@@ -76,7 +76,7 @@ def make_location_day(locations):
     locationsを日ごとのJsonに整形、不要パラメータを削ぎ落として軽量化を行う。
 
     Args:
-        locations(dict) : Googleタイムライン情報
+        locations(dict) : Googleタイムライン情報（全体）
 
     Returns:
         locations_day : 整形したlocations
@@ -86,11 +86,13 @@ def make_location_day(locations):
 
     locations_day = {}
     for location in locations:
-        timestamp = timestampms_to_timestamp(location['timestampMs'])
-
         # 年月日のキーが含まれていなければ、年月日をキーに辞書追加
+        timestamp = timestampms_to_timestamp(location['timestampMs'])
         if(timestamp[:8] not in locations_day):
             locations_day[timestamp[:8]] = {}
+
+        # パラメータ削ぎ落とし
+        location = select_parameter(location)
 
         # 年月日の辞書にタイムスタンプをキーに位置情報をセット
         locations_day[timestamp[:8]][timestamp] = location
@@ -98,6 +100,25 @@ def make_location_day(locations):
     logger.info('end make_location_day')
 
     return locations_day
+
+
+def select_parameter(location):
+    """Summary line.
+
+    定数SELECT_PARAMETESに定義したキーのみにlocation情報を削ぎ落とす
+
+    Args:
+        location(dict) : Googleタイムライン情報（単体）
+
+    Returns:
+        location : 削ぎ落としたlocation
+
+    """
+    ret_location = {}
+    for param_name in const.SELECT_PARAMETERS:
+        if param_name in location:
+            ret_location[param_name] = location[param_name]
+    return ret_location
 
 
 def timestampms_to_timestamp(timestampMs):
