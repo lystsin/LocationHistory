@@ -10,6 +10,7 @@ import json
 import logging
 from datetime import datetime
 
+import geo
 import const
 
 # loggerの設定
@@ -135,6 +136,21 @@ def timestampms_to_timestamp(timestampMs):
     """
     timestamp = datetime.fromtimestamp(int(timestampMs[:10]))
     return timestamp.strftime('%Y%m%d%H%M%S')
+
+
+def e7_to_float(e7):
+    """Summary line.
+
+    latitudeE7, longitudeE7を実数に変換する
+
+    Args:
+        e7(int) : latitudeE7 or longitudeE7
+
+    Returns:
+        e7 / 10000000(float) : 実数
+
+    """
+    return e7 / 10000000
 
 
 if __name__ == '__main__':

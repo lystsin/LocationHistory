@@ -106,4 +106,4 @@ venv.bak/
 *.2
 *.3
 data/output/201808/20180808.json
-log/LocationHistory.log.2018-11-14
+log/*
