@@ -50,6 +50,8 @@ def main():
             wf.write(json.dumps(v, ensure_ascii=False, sort_keys=False,
                                 separators=(',', ': ')))
 
+    total_move(location_day)
+
     logger.info('end main')
 
 
@@ -152,6 +154,13 @@ def e7_to_float(e7):
 
     """
     return e7 / 10000000
+
+
+def total_move(location_day):
+    for day, location in sorted(location_day.items(), key=lambda x: x[0]):
+        for timestamp, v in sorted(location.items(), key=lambda x: x[0]):
+            print(timestamp + ' ' + str(e7_to_float(v['latitudeE7'])) + ' '
+                  + str(e7_to_float(v['longitudeE7'])))
 
 
 if __name__ == '__main__':
