@@ -8,6 +8,7 @@ Created on Wed Aug  8 13:12:39 2018
 import os
 import json
 import logging
+import logging.config
 from datetime import datetime
 
 import geo
