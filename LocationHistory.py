@@ -50,7 +50,9 @@ def main():
             wf.write(json.dumps(v, ensure_ascii=False, sort_keys=False,
                                 separators=(',', ': ')))
 
-    total_move(location_day)
+    distance = total_distance(location_day)
+
+    logger.info('総移動距離 = {0}km'.format(str(distance)))
 
     logger.info('end main')
 
@@ -98,6 +100,9 @@ def make_location_day(locations):
         # パラメータ削ぎ落とし
         location = select_parameter(location)
 
+        # E7の値を実数に変換
+        location = e7_to_float(location)
+
         # 年月日の辞書にタイムスタンプをキーに位置情報をセット
         locations_day[timestamp[:8]][timestamp] = location
 
@@ -141,26 +146,66 @@ def timestampms_to_timestamp(timestampMs):
     return timestamp.strftime('%Y%m%d%H%M%S')
 
 
-def e7_to_float(e7):
+def e7_to_float(location):
     """Summary line.
 
     latitudeE7, longitudeE7を実数に変換する
 
     Args:
-        e7(int) : latitudeE7 or longitudeE7
+        location(dict) : Googleタイムライン情報
 
     Returns:
-        e7 / 10000000(float) : 実数
+        location(dict) : latitude, longitude変換後のGoogleタイムライン情報
 
     """
-    return e7 / 10000000
+    if 'latitudeE7' in location:
+        location['latitude'] = location['latitudeE7'] / 10000000
+        location.pop('latitudeE7')
+
+    if 'longitudeE7' in location:
+        location['longitude'] = location['longitudeE7'] / 10000000
+        location.pop('longitudeE7')
+
+    return location
 
 
-def total_move(location_day):
+def total_distance(location_day):
+    """Summary line.
+
+    latitudeE7, longitudeE7を実数に変換する
+
+    Args:
+        location(dict) : Googleタイムライン情報
+
+    Returns:
+        location(dict) : latitude, longitude変換後のGoogleタイムライン情報
+
+    """
+    logger.info('start total_distance')
+
+    current_data = {}
+    distance_total = 0
     for day, location in sorted(location_day.items(), key=lambda x: x[0]):
-        for timestamp, v in sorted(location.items(), key=lambda x: x[0]):
-            print(timestamp + ' ' + str(e7_to_float(v['latitudeE7'])) + ' '
-                  + str(e7_to_float(v['longitudeE7'])))
+        distance_day = 0
+        for timestamp, data in sorted(location.items(), key=lambda x: x[0]):
+            # 初回処理
+            if not current_data:
+                current_data = data
+            else:
+                distance = geo.cal_rho(current_data['latitude'],
+                                       current_data['longitude'],
+                                       data['latitude'],
+                                       data['longitude'])
+                logger.debug('{0}の移動距離: {1}km'
+                             .format(timestamp, str(distance)))
+                current_data = data
+                distance_day += distance
+
+        distance_total += distance_day
+        logger.debug('{0}の移動距離: {1}km'.format(day, str(distance_day)))
+
+    logger.info('end total_distance')
+    return distance_total
 
 
 if __name__ == '__main__':
